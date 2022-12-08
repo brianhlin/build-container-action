@@ -73,7 +73,7 @@ outputs:
     description: >-
       Key referencing the GitHub cache containing the layers of the
       built container image
-    value ${{ steps.generate-tags.outputs.cache_key }}
+    value: ${{ steps.generate-tags.outputs.cache_key }}
 
 runs:
   using: "composite"
