@@ -81,10 +81,10 @@ runs:
   - uses: actions/checkout@v2
 
   - name: Check input requirements
-    if: inputs.push_image && (! inputs.registry_url || ! inputs.registry_user || ! inputs.registry_pass)
+    if: inputs.push_image && inputs.registry_url && inputs.registry_user && ! inputs.registry_pass
     shell: bash
     run: |
-      echo "::error ::'push' specified but missing 'registry_url', 'registry_user', or 'registry_pass'"
+      echo "::error ::'push_image' specified but missing 'registry_url', 'registry_user', or 'registry_pass'"
       exit 1
 
   - id: generate-tags
