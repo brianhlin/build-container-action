@@ -25,9 +25,12 @@ inputs:
     required: false
     default: el8
   context:
-    description: 'Path to container files, including Dockerfile'
+    description: 'Path to container files'
     required: false
     default: '.'
+  dockerfile:
+    description: 'Path to the Dockerfile (default { context }/Dockerfile'
+    required: false
   output_image:
     description: >-
       Name of the image and tag for the resultant image build
@@ -135,6 +138,16 @@ runs:
       echo "ts_image=${TIMESTAMP_IMAGE}"                                        >> ${GITHUB_OUTPUT}
       echo "cache_key=$(tr ':/' '_' <<< $TIMESTAMP_IMAGE)_buildx_${GITHUB_SHA}" >> ${GITHUB_OUTPUT}
 
+  - id: dockerfile
+    if: success()
+    name: Generate path to Dockerfile
+    shell: bash
+    env:
+      CONTEXT: ${{ inputs.context }}
+      DOCKERFILE: ${{ inputs.dockerfile}}
+    run: |
+      echo "path=${DOCKERFILE:-${CONTEXT}/Dockerfile}" >> ${GITHUB_OUTPUT}
+
   - name: Set up Docker Buildx
     if: success()
     uses: docker/setup-buildx-action@v2
@@ -154,6 +167,7 @@ runs:
       load: ${{ ! fromJSon(inputs.push_image) }}
       push: ${{ fromJSon(inputs.push_image) }}
       context: ${{ inputs.context }}
+      file: ${{ steps.dockerfile.outputs.path }}
       build-args: |
         BASE_YUM_REPO=${{ inputs.osg_repo }}
         BASE_OS=${{ inputs.base_os }}
